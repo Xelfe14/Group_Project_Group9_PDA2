@@ -211,7 +211,8 @@ if page == "Go Live":  # Correct indentation
                     try:
                         clf_prediction = clf_model.predict(latest_features_df)[0]
                         prediction_text = "⬆ Rise" if clf_prediction == 1 else "⬇ Fall"
-                        confidence = clf_model.predict_proba(latest_features_df)[0][clf_prediction] * 100  # Confidence score
+                        # Convert numpy float32 to Python float
+                        confidence = float(clf_model.predict_proba(latest_features_df)[0][clf_prediction] * 100)  # Confidence score
 
                         st.markdown(f"*📌 Next-Day Price Prediction: {prediction_text}*")
                         st.progress(confidence / 100)  # Show confidence as a progress bar
@@ -223,7 +224,8 @@ if page == "Go Live":  # Correct indentation
                 # Regression Prediction (Exact Price)
                 if reg_model is not None:
                     try:
-                        reg_prediction = reg_model.predict(latest_features_df)[0]
+                        # Convert numpy float32 to Python float
+                        reg_prediction = float(reg_model.predict(latest_features_df)[0])
                         st.metric(label="📉 Predicted Next-Day Price", value=f"${reg_prediction:.2f}")
                     except Exception as e:
                         st.error(f"Error making regression prediction: {str(e)}")
