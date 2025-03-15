@@ -8,6 +8,17 @@ import numpy as np
 from API_wrapper import PySimFin
 from trading_strategy import BuyAndHoldStrategy, BuyAndSellStrategy, backtest_strategy, plot_backtest_results
 
+st.markdown(
+    """
+    <style>
+    .stApp {
+        background-color: #f5f0dc;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 try:
     import xgboost
 except ImportError:
