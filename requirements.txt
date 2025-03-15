@@ -17,10 +17,7 @@ python-dotenv>=1.0.0
 # Date and time handling
 python-dateutil>=2.8.2
 
-# Data storage and serialization
-pickle5>=0.0.11  # For Python < 3.8, otherwise built-in pickle is fine
-
-# Optional but recommended
+# Development tools (optional)
 jupyter>=1.0.0  # For development and testing
 black>=23.11.0  # For code formatting
 pylint>=3.0.0   # For code quality checks
