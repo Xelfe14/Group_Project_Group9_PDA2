@@ -9,6 +9,9 @@ plotly>=5.18.0
 
 # Machine Learning
 scikit-learn>=1.3.0
+xgboost>=2.0.0
+lightgbm>=4.1.0  # In case your models use this
+catboost>=1.2.0  # In case your models use this
 
 # API and data handling
 requests>=2.31.0

@@ -4,8 +4,14 @@ import pickle  # Using built-in pickle
 import datetime
 import matplotlib.pyplot as plt
 import os
+import numpy as np
 from API_wrapper import PySimFin
 from trading_strategy import BuyAndHoldStrategy, BuyAndSellStrategy, backtest_strategy, plot_backtest_results
+
+try:
+    import xgboost
+except ImportError:
+    st.error("XGBoost is not installed. Please check if the deployment environment has all required dependencies.")
 
 # Initialize API wrapper
 api = PySimFin()  # Will automatically use API key from secrets
@@ -194,25 +200,40 @@ if page == "Go Live":  # Correct indentation
         st.subheader("📡 Model Predictions")
 
         if not ticker_data.empty:
-            latest_record = ticker_data.iloc[-1]
-            feature_cols = ['Close', 'Volume', 'ema_20', 'day_of_week']
-            latest_features = latest_record[feature_cols]
-            latest_features_df = pd.DataFrame([latest_features])
+            try:
+                latest_record = ticker_data.iloc[-1]
+                feature_cols = ['Close', 'Volume', 'ema_20', 'day_of_week']
+                latest_features = latest_record[feature_cols]
+                latest_features_df = pd.DataFrame([latest_features])
 
-            # Classification Prediction (Rise or Fall)
-            clf_prediction = clf_model.predict(latest_features_df)[0]
-            prediction_text = "⬆ Rise" if clf_prediction == 1 else "⬇ Fall"
-            confidence = clf_model.predict_proba(latest_features_df)[0][clf_prediction] * 100  # Confidence score
+                # Classification Prediction (Rise or Fall)
+                if clf_model is not None:
+                    try:
+                        clf_prediction = clf_model.predict(latest_features_df)[0]
+                        prediction_text = "⬆ Rise" if clf_prediction == 1 else "⬇ Fall"
+                        confidence = clf_model.predict_proba(latest_features_df)[0][clf_prediction] * 100  # Confidence score
 
-            st.markdown(f"*📌 Next-Day Price Prediction: {prediction_text}*")
-            st.progress(confidence / 100)  # Show confidence as a progress bar
+                        st.markdown(f"*📌 Next-Day Price Prediction: {prediction_text}*")
+                        st.progress(confidence / 100)  # Show confidence as a progress bar
+                    except Exception as e:
+                        st.error(f"Error making classification prediction: {str(e)}")
+                else:
+                    st.warning("Classification model could not be loaded.")
 
-            # Regression Prediction (Exact Price)
-            reg_prediction = reg_model.predict(latest_features_df)[0]
-            st.metric(label="📉 Predicted Next-Day Price", value=f"${reg_prediction:.2f}")
+                # Regression Prediction (Exact Price)
+                if reg_model is not None:
+                    try:
+                        reg_prediction = reg_model.predict(latest_features_df)[0]
+                        st.metric(label="📉 Predicted Next-Day Price", value=f"${reg_prediction:.2f}")
+                    except Exception as e:
+                        st.error(f"Error making regression prediction: {str(e)}")
+                else:
+                    st.warning("Regression model could not be loaded.")
 
+            except Exception as e:
+                st.error(f"Error preparing prediction data: {str(e)}")
         else:
-            st.error("No data available for predictions.")
+            st.warning("No data available for predictions.")
 
     with tab3:  # Live Data
         st.subheader("📊 Live Stock Data")
