@@ -3,6 +3,7 @@ import pandas as pd
 import pickle  # Using built-in pickle
 import datetime
 import matplotlib.pyplot as plt
+import os
 from API_wrapper import PySimFin
 from trading_strategy import BuyAndHoldStrategy, BuyAndSellStrategy, backtest_strategy, plot_backtest_results
 
@@ -60,24 +61,47 @@ def format_number(value):
 @st.cache_data
 def load_historical_data():
     """Load processed historical data."""
-    data_path = "Data/merged_features.csv"
-    df = pd.read_csv(data_path)
-    df['Date'] = pd.to_datetime(df['Date'])
-    return df
+    try:
+        data_path = "data/merged_features.csv"  # Updated path to lowercase
+        if not os.path.exists(data_path):
+            st.error(f"Data file not found at {data_path}. Please check if the file exists.")
+            return None
+        df = pd.read_csv(data_path)
+        df['Date'] = pd.to_datetime(df['Date'])
+        return df
+    except Exception as e:
+        st.error(f"Error loading historical data: {str(e)}")
+        return None
 
 @st.cache_resource
 def load_classification_model():
     """Load the pre-trained classification model."""
-    with open("best_clf_model.pkl", "rb") as f:
-        model = pickle.load(f)
-    return model
+    try:
+        model_path = "best_clf_model.pkl"
+        if not os.path.exists(model_path):
+            st.error(f"Classification model file not found at {model_path}")
+            return None
+        with open(model_path, "rb") as f:
+            model = pickle.load(f)
+        return model
+    except Exception as e:
+        st.error(f"Error loading classification model: {str(e)}")
+        return None
 
 @st.cache_resource
 def load_regression_model():
     """Load the pre-trained regression model."""
-    with open("best_reg_model.pkl", "rb") as f:
-        model = pickle.load(f)
-    return model
+    try:
+        model_path = "best_reg_model.pkl"
+        if not os.path.exists(model_path):
+            st.error(f"Regression model file not found at {model_path}")
+            return None
+        with open(model_path, "rb") as f:
+            model = pickle.load(f)
+        return model
+    except Exception as e:
+        st.error(f"Error loading regression model: {str(e)}")
+        return None
 
 @st.cache_resource
 def init_api_wrapper(api_key: str):
