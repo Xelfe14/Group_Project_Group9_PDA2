@@ -160,14 +160,67 @@ if page == "Home":
 # Overview
 if page == "Overview":  # Correct indentation
     st.title("🔍 Overview")
+    st.header("Project Overview")
+    st.write(
+        """
+        This project implements an automated daily trading system that combines **machine learning predictions** 
+        with **real-time market data** to provide trading insights. The system analyzes historical data from 
+        five major US companies (**AAPL, MSFT, GOOGL, AMZN, FB**) and provides daily trading recommendations 
+        through an interactive web interface.
+        """
+        )
 
+    # Sección: Data Analytics Module
+    st.subheader("📊 Data Analytics Module")
     st.markdown("""
-    - **ETL & Data Processing:** Our system processes historical data from SimFin and engineers relevant features.
-    - **Machine Learning Models:** We use a classification model to predict if the price will rise or fall and a regression model to estimate the next-day price.
-    - **Live Data:** Our API wrapper fetches real-time share prices from SimFin.
+        - **ETL Pipeline**: Processes historical financial data from **SimFin**
+        - **ML Models**:
+              - Classification model to predict **price movement (rise/fall)**
+              - Regression model to predict **next-day price**
+        - **Trading Strategies**:
+        - **Buy and Hold**: Purchases shares when **rise predicted**, holds until **profit target**
+        - **Buy and Sell**: Dynamic trading based on **daily predictions**
+        """)
 
-    Use the **Go Live** page from the sidebar to select a ticker, view historical data, see model‑generated trading signals, and retrieve live data.
+    # Sección: Web Application
+    st.subheader("🌐 Web Application")
+    st.markdown("""
+    - **Multi-page Streamlit interface**:
+      - 📌 Home page with **project overview**
+      - 📖 Overview page explaining **methodology**
+      - 📈 Live trading **dashboard**
+      - 🔄 Trading strategy **backtesting**
     """)
+
+    # Sección: Technical Architecture
+    st.header("🏗️ Technical Architecture")
+
+    # Sección: Core Components
+    st.subheader("⚙️ Core Components")
+
+    st.markdown("### 1️⃣ Data Processing")
+    st.markdown("""
+    - **Pandas** for data manipulation
+    - **Historical data** from SimFin bulk download
+    - **Real-time data** via SimFin API
+    """)
+
+    st.markdown("### 2️⃣ Machine Learning")
+    st.markdown("""
+    - **Classification model** for price movement
+    - **Regression model** for price prediction
+    - **Feature engineering** from financial metrics
+    """)
+
+    st.markdown("### 3️⃣ Web Interface")
+    st.markdown("""
+    - **Streamlit** for frontend
+    - **Interactive visualizations**
+    - **Real-time data updates**
+    """)
+
+    # Final message
+    st.success("🚀 Ready to explore the automated trading system!")
 
 
 # Go Live Page
