@@ -129,6 +129,8 @@ def init_api_wrapper(api_key: str):
 st.sidebar.title("Navigation")
 page = st.sidebar.radio("Go to", ["Home","Overview", "Go Live","Trading Strategy"])
 
+# Define tickers
+tickers = ['AAPL', 'MSFT', 'GOOG', 'AMZN', 'META']  # Updated tickers
 
 # Home Page
 if page == "Home":
@@ -221,7 +223,6 @@ if page == "Go Live":  # Correct indentation
     st.title("🚀 Go Live – Trading Dashboard")
 
     # Sidebar: Ticker Selection
-    tickers = ['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'FB']
     selected_ticker = st.sidebar.selectbox("📈 Select Stock Ticker", tickers, help="Choose a stock to analyze")
 
     # Load Data and Models
@@ -407,87 +408,104 @@ elif page == "Trading Strategy":
     # Filter data for selected ticker
     ticker_data = historical_data[historical_data['Ticker'] == selected_ticker].sort_values('Date')
 
-    # Date range selection
-    min_date = ticker_data['Date'].min()
-    max_date = ticker_data['Date'].max()
-    start_date = st.sidebar.date_input(
-        "Start Date",
-        min_date,
-        min_value=min_date,
-        max_value=max_date
-    )
-    end_date = st.sidebar.date_input(
-        "End Date",
-        max_date,
-        min_value=start_date,
-        max_value=max_date
-    )
-
-    # Strategy selection and parameters
-    strategy_type = st.sidebar.selectbox(
-        "Select Strategy",
-        ["Buy and Hold", "Buy and Sell"]
-    )
-
-    initial_capital = st.sidebar.number_input(
-        "Initial Capital ($)",
-        min_value=1000,
-        value=10000,
-        step=1000
-    )
-
-    if strategy_type == "Buy and Hold":
-        profit_target = st.sidebar.slider(
-            "Profit Target (%)",
-            min_value=1,
-            max_value=50,
-            value=10
-        ) / 100
-        strategy = BuyAndHoldStrategy(initial_capital, profit_target)
+    if ticker_data.empty:
+        st.error(f"No historical data available for {selected_ticker}")
     else:
-        strategy = BuyAndSellStrategy(initial_capital)
+        # Date range selection
+        min_date = ticker_data['Date'].min()
+        max_date = ticker_data['Date'].max()
+        start_date = st.sidebar.date_input(
+            "Start Date",
+            min_date,
+            min_value=min_date,
+            max_value=max_date
+        )
+        end_date = st.sidebar.date_input(
+            "End Date",
+            max_date,
+            min_value=start_date,
+            max_value=max_date
+        )
 
-    # Generate predictions for the entire dataset
-    feature_cols = ['Close', 'Volume', 'ema_20', 'day_of_week']
-    predictions = clf_model.predict(ticker_data[feature_cols])
+        # Strategy selection and parameters
+        strategy_type = st.sidebar.selectbox(
+            "Select Strategy",
+            ["Buy and Hold", "Buy and Sell"]
+        )
 
-    # Run backtest
-    if st.button("Run Backtest"):
-        with st.spinner("Running backtest..."):
-            history_df, metrics = backtest_strategy(
-                strategy,
-                ticker_data,
-                predictions,
-                start_date.strftime("%Y-%m-%d"),
-                end_date.strftime("%Y-%m-%d")
-            )
+        initial_capital = st.sidebar.number_input(
+            "Initial Capital ($)",
+            min_value=1000,
+            value=10000,
+            step=1000
+        )
 
-            # Display metrics
-            col1, col2 = st.columns(2)
+        if strategy_type == "Buy and Hold":
+            profit_target = st.sidebar.slider(
+                "Profit Target (%)",
+                min_value=1,
+                max_value=50,
+                value=10
+            ) / 100
+            strategy = BuyAndHoldStrategy(initial_capital, profit_target)
+        else:
+            strategy = BuyAndSellStrategy(initial_capital)
 
-            with col1:
-                st.subheader("Performance Metrics")
-                st.metric("Initial Portfolio Value", f"${metrics['Initial Portfolio Value']:,.2f}")
-                st.metric("Final Portfolio Value", f"${metrics['Final Portfolio Value']:,.2f}")
-                st.metric("Total Return", f"{metrics['Total Return %']:.2f}%")
-                st.metric("Number of Trades", metrics['Number of Trades'])
+        # Generate predictions for the entire dataset
+        try:
+            feature_cols = ['Close', 'Volume', 'ema_20', 'day_of_week']
+            predictions = clf_model.predict(ticker_data[feature_cols])
 
-            with col2:
-                st.subheader("Risk Metrics")
-                st.metric("Average Position Size", f"{metrics['Average Position Size']:.2f} shares")
-                st.metric("Max Drawdown", f"{metrics['Max Drawdown %']:.2f}%")
-                st.metric("Sharpe Ratio", f"{metrics['Sharpe Ratio']:.2f}")
+            # Run backtest
+            if st.button("Run Backtest"):
+                with st.spinner("Running backtest..."):
+                    try:
+                        # Filter data for the selected date range
+                        mask = (ticker_data['Date'] >= pd.Timestamp(start_date)) & (ticker_data['Date'] <= pd.Timestamp(end_date))
+                        backtest_data = ticker_data[mask].copy()
+                        backtest_predictions = predictions[mask]
 
-            # Plot results
-            st.plotly_chart(plot_backtest_results(history_df, selected_ticker))
+                        if len(backtest_data) > 0:
+                            history_df, metrics = backtest_strategy(
+                                strategy,
+                                backtest_data,
+                                backtest_predictions,
+                                start_date.strftime("%Y-%m-%d"),
+                                end_date.strftime("%Y-%m-%d")
+                            )
 
-            # Display trade history
-            st.subheader("Trade History")
-            trade_history = history_df[history_df['action'].isin(['BUY', 'SELL'])].copy()
-            trade_history['date'] = pd.to_datetime(trade_history['date']).dt.strftime('%Y-%m-%d')
-            trade_history['price'] = trade_history['price'].map('${:,.2f}'.format)
-            trade_history['portfolio_value'] = trade_history['portfolio_value'].map('${:,.2f}'.format)
-            st.dataframe(
-                trade_history[['date', 'action', 'price', 'shares', 'portfolio_value']],
-                use_container_width=True
-            )
+                            # Display metrics
+                            col1, col2 = st.columns(2)
+
+                            with col1:
+                                st.subheader("Performance Metrics")
+                                st.metric("Initial Portfolio Value", f"${metrics['Initial Portfolio Value']:,.2f}")
+                                st.metric("Final Portfolio Value", f"${metrics['Final Portfolio Value']:,.2f}")
+                                st.metric("Total Return", f"{metrics['Total Return %']:.2f}%")
+                                st.metric("Number of Trades", metrics['Number of Trades'])
+
+                            with col2:
+                                st.subheader("Risk Metrics")
+                                st.metric("Average Position Size", f"{metrics['Average Position Size']:.2f} shares")
+                                st.metric("Max Drawdown", f"{metrics['Max Drawdown %']:.2f}%")
+                                st.metric("Sharpe Ratio", f"{metrics['Sharpe Ratio']:.2f}")
+
+                            # Plot results
+                            st.plotly_chart(plot_backtest_results(history_df, selected_ticker))
+
+                            # Display trade history
+                            st.subheader("Trade History")
+                            trade_history = history_df[history_df['action'].isin(['BUY', 'SELL'])].copy()
+                            trade_history['date'] = pd.to_datetime(trade_history['date']).dt.strftime('%Y-%m-%d')
+                            trade_history['price'] = trade_history['price'].map('${:,.2f}'.format)
+                            trade_history['portfolio_value'] = trade_history['portfolio_value'].map('${:,.2f}'.format)
+                            st.dataframe(
+                                trade_history[['date', 'action', 'price', 'shares', 'portfolio_value']],
+                                use_container_width=True
+                            )
+                        else:
+                            st.warning("No data available for the selected date range.")
+                    except Exception as e:
+                        st.error(f"Error during backtesting: {str(e)}")
+        except Exception as e:
+            st.error(f"Error generating predictions: {str(e)}")

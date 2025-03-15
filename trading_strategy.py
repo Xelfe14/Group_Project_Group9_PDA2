@@ -106,17 +106,13 @@ def backtest_strategy(strategy, data, predictions, start_date, end_date=None):
     # Reset the strategy's state
     strategy.reset()
 
-    # Filter the data for the backtest period
-    mask = data['Date'] >= start_date
-    if end_date:
-        mask &= data['Date'] <= end_date
-
-    backtest_data = data[mask].copy()
-    backtest_predictions = predictions[mask.values]
+    # Ensure data and predictions have the same length
+    if len(data) != len(predictions):
+        raise ValueError(f"Data length ({len(data)}) does not match predictions length ({len(predictions)})")
 
     # Run the strategy day by day
-    for i, row in backtest_data.iterrows():
-        strategy.decide(row['Date'], row['Close'], backtest_predictions[i])
+    for i, row in data.iterrows():
+        strategy.decide(row['Date'], row['Close'], predictions[i])
 
     # Convert trade history to a DataFrame
     history_df = pd.DataFrame([vars(t) for t in strategy.trade_history])
@@ -129,16 +125,16 @@ def backtest_strategy(strategy, data, predictions, start_date, end_date=None):
     # Calculate daily returns
     history_df['daily_return'] = history_df['portfolio_value'].pct_change()
 
-    # Compute some basic metrics
+    # Compute metrics
     metrics = {
         'Initial Portfolio Value': initial_value,
         'Final Portfolio Value': final_value,
         'Total Return': total_return,
         'Total Return %': total_return * 100,
         'Number of Trades': len(history_df[history_df['action'].isin(['BUY', 'SELL'])]),
-        'Average Position Size': history_df[history_df['action'] == 'BUY']['shares'].mean(),
+        'Average Position Size': history_df[history_df['action'] == 'BUY']['shares'].mean() if not history_df.empty else 0,
         'Max Drawdown %': (history_df['portfolio_value'].min() - initial_value) / initial_value * 100 if not history_df.empty else 0,
-        'Sharpe Ratio': (np.sqrt(252) * history_df['daily_return'].mean() / history_df['daily_return'].std()) if history_df['daily_return'].std() != 0 else 0
+        'Sharpe Ratio': (np.sqrt(252) * history_df['daily_return'].mean() / history_df['daily_return'].std()) if not history_df.empty and history_df['daily_return'].std() != 0 else 0
     }
 
     return history_df, metrics
