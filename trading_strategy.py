@@ -98,7 +98,6 @@ class BuyAndSellStrategy(TradingStrategy):
 
         return self.record_trade(date, 'HOLD', price, 0)
 
-#backtest any given strategy with historical data
 def backtest_strategy(strategy, data, predictions, start_date, end_date=None):
     """
     Backtest a trading strategy using historical data and predictions.
@@ -110,8 +109,12 @@ def backtest_strategy(strategy, data, predictions, start_date, end_date=None):
     if len(data) != len(predictions):
         raise ValueError(f"Data length ({len(data)}) does not match predictions length ({len(predictions)})")
 
+    # Reset the index to avoid any indexing issues
+    data = data.reset_index(drop=True)
+
     # Run the strategy day by day
-    for i, row in data.iterrows():
+    for i in range(len(data)):
+        row = data.iloc[i]
         strategy.decide(row['Date'], row['Close'], predictions[i])
 
     # Convert trade history to a DataFrame
@@ -123,7 +126,10 @@ def backtest_strategy(strategy, data, predictions, start_date, end_date=None):
     total_return = (final_value - initial_value) / initial_value if initial_value else 0
 
     # Calculate daily returns
-    history_df['daily_return'] = history_df['portfolio_value'].pct_change()
+    if not history_df.empty:
+        history_df['daily_return'] = history_df['portfolio_value'].pct_change()
+    else:
+        history_df['daily_return'] = 0
 
     # Compute metrics
     metrics = {
@@ -139,10 +145,9 @@ def backtest_strategy(strategy, data, predictions, start_date, end_date=None):
 
     return history_df, metrics
 
-
 def plot_backtest_results(history_df: pd.DataFrame, ticker: str):
     '''
-    Function to splot the backtest strategy data obtained
+    Function to plot the backtest strategy data obtained
     '''
     fig = make_subplots(
         rows=2, cols=1,
