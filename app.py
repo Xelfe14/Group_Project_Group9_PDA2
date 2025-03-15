@@ -215,6 +215,7 @@ if page == "Go Live":  # Correct indentation
                         confidence = float(clf_model.predict_proba(latest_features_df)[0][clf_prediction] * 100)  # Confidence score
 
                         st.markdown(f"*📌 Next-Day Price Prediction: {prediction_text}*")
+                        st.markdown(f"*📈 Confidence: {confidence:.2f}%*")
                         st.progress(confidence / 100)  # Show confidence as a progress bar
                     except Exception as e:
                         st.error(f"Error making classification prediction: {str(e)}")
