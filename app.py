@@ -207,13 +207,13 @@ if page == "Overview":  # Correct indentation
         st.subheader("🌐 Web Application")
         st.markdown("""
         - **PySimFin API Wrapper**:
-        - 📊 **Retrieve Share Prices**: Fetch daily share prices for a given company within a date range.
-        - 📜 **Retrieve Financial Statements**: Access compact financial statement data (balance sheets, income statements, cash flow statements).
-        - 📝 **Logging Configuration**:  
-            - 🕒 Timestamped API logs  
-            - 📌 Module name tracking  
-            - ⚠️ Log level  
-            - 💬 Messages  
+            - 📊 **Retrieve Share Prices**: Fetch daily share prices for a given company within a date range.
+            - 📜 **Retrieve Financial Statements**: Access compact financial statement data (balance sheets, income statements, cash flow statements).
+            - 📝 **Logging Configuration**:  
+                - 🕒 Timestamped API logs  
+                - 📌 Module name tracking  
+                - ⚠️ Log level  
+                - 💬 Messages  
         """)
         st.markdown("""
         - **Multi-page Streamlit interface**:
