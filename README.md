@@ -71,6 +71,10 @@ pip install -r requirements.txt
 ```bash
 streamlit run app.py
 ```
+Or go on:
+```bash
+https://yhxm2aqkzpngwwhqx9m8ty.streamlit.app/
+```
 
 2. Navigate to the web interface:
    - Home: Project overview and team information
