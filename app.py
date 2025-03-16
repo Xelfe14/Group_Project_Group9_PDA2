@@ -176,7 +176,7 @@ if page == "Overview":  # Correct indentation
           - **Buy and Hold**: Purchases shares when **rise predicted**, holds until **profit target**
           - **Buy and Sell**: Dynamic trading based on **daily predictions**
         """)
-    
+
     # Pestaña 2: Web Application
     with tab2:
         st.subheader("🌐 Web Application")
@@ -187,35 +187,35 @@ if page == "Overview":  # Correct indentation
           - 📈 Live trading **dashboard**
           - 🔄 Trading strategy **backtesting**
         """)
-    
+
     # Pestaña 3: Technical Architecture
     with tab3:
         st.subheader("🏗️ Technical Architecture")
-    
+
         st.markdown("### 1️⃣ Data Processing")
         st.markdown("""
         - **Pandas** for data manipulation
         - **Historical data** from SimFin bulk download
         - **Real-time data** via SimFin API
         """)
-    
+
         st.markdown("### 2️⃣ Machine Learning")
         st.markdown("""
         - **Classification model** for price movement
         - **Regression model** for price prediction
         - **Feature engineering** from financial metrics
         """)
-    
+
         st.markdown("### 3️⃣ Web Interface")
         st.markdown("""
         - **Streamlit** for frontend
         - **Interactive visualizations**
         - **Real-time data updates**
         """)
-    
+
     # Final message
     st.success("🚀 Ready to explore the automated trading system!")
-    
+
 # Go Live Page
 # Initialize API wrapper
 api = init_api_wrapper("460e1696-925e-41ba-b556-fe23ce2cefd4")
@@ -243,7 +243,7 @@ if page == "Go Live":  # Correct indentation
 
             # Plot Stock Price Trend
             fig, ax = plt.subplots(figsize=(8, 4))
-            ax.plot(ticker_data["Date"], ticker_data["Close"], label="Closing Price", marker='o', linestyle='-')
+            ax.plot(ticker_data["Date"], ticker_data["Close"], label="Closing Price", linestyle='-')
             ax.set_xlabel("Date")
             ax.set_ylabel("Stock Price ($)")
             ax.set_title(f"{selected_ticker} Closing Price Trend")
