@@ -206,6 +206,16 @@ if page == "Overview":  # Correct indentation
     with tab3:
         st.subheader("🌐 Web Application")
         st.markdown("""
+        - **PySimFin API Wrapper**:
+        - 📊 **Retrieve Share Prices**: Fetch daily share prices for a given company within a date range.
+        - 📜 **Retrieve Financial Statements**: Access compact financial statement data (balance sheets, income statements, cash flow statements).
+        - 📝 **Logging Configuration**:  
+            - 🕒 Timestamped API logs  
+            - 📌 Module name tracking  
+            - ⚠️ Log level  
+            - 💬 Messages  
+        """)
+        st.markdown("""
         - **Multi-page Streamlit interface**:
           - 📌 Home page with **project overview**
           - 📖 Overview page explaining **methodology**
