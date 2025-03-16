@@ -35,8 +35,8 @@ This project implements an automated daily trading system that combines machine 
    - Real-time data via SimFin API
 
 2. **Machine Learning**:
-   - Classification model for price movement
-   - Regression model for price prediction
+   - Classification model (RandomForestClassifier) for price movement
+   - Regression model (RandomForestRegressor) for price prediction
    - Feature engineering from financial metrics
 
 3. **Web Interface**:
