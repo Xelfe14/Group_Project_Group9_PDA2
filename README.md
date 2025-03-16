@@ -81,14 +81,20 @@ streamlit run app.py
 ## Project Structure 📁
 
 ```
-Streamlit_app2/
+Group_Project_Group9_PDA2/
 ├── app.py            # Main Streamlit application
-├── Data_Analytics_Scripts/
-  ├──Classification_model.py
+├── Data_Analytics_Scripts/  # The scripts we used to create the dataset and the ML models
+  ├── Classification_model.py
+  ├── Regression_model.py
+  ├── EDA.py
+  ├──load_files.py
 ├── API_wrapper.py         # SimFin API integration
 ├── trading_strategy.py    # Trading strategy implementations
 ├── requirements.txt       # Project dependencies
-├── Data/                  # Historical data storage
+├── Data/
+  ├── merged_features.csv  # Historical data storage
+├── .streamlit
+  ├──secrets.toml         # where we store the APIkey
 └── README.md             # Project documentation
 ```
 
