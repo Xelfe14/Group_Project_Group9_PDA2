@@ -162,7 +162,7 @@ if page == "Home":
 # Overview
 if page == "Overview":  # Correct indentation
     st.title("🔍 Overview")
-    tab1, tab2, tab3 = st.tabs(["📊 Data Analytics Module", "🌐 Web Application", "🏗️ Technical Architecture"])
+    tab1, tab2, tab3 = st.tabs([ "🏗️ Technical Architecture", "📊 Data Analytics Module", "🌐 Web Application"])
 
     # Pestaña 3: Technical Architecture
     with tab1:
