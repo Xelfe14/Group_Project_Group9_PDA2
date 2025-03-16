@@ -188,7 +188,7 @@ if page == "Overview":  # Correct indentation
         - **Interactive visualizations**
         - **Real-time data updates**
         """)
-    
+
     # Pestaña 2: Data Analytics Module
     with tab2:
         st.subheader("📊 Data Analytics Module")
@@ -209,11 +209,11 @@ if page == "Overview":  # Correct indentation
         - **PySimFin API Wrapper**:
             - 📊 **Retrieve Share Prices**: Fetch daily share prices for a given company within a date range.
             - 📜 **Retrieve Financial Statements**: Access compact financial statement data (balance sheets, income statements, cash flow statements).
-            - 📝 **Logging Configuration**:  
-                - 🕒 Timestamped API logs  
-                - 📌 Module name tracking  
-                - ⚠️ Log level  
-                - 💬 Messages  
+            - 📝 **Logging Configuration**:
+                - 🕒 Timestamped API logs
+                - 📌 Module name tracking
+                - ⚠️ Log level
+                - 💬 Messages
         """)
         st.markdown("""
         - **Multi-page Streamlit interface**:
@@ -244,7 +244,7 @@ if page == "Go Live":  # Correct indentation
     ticker_data = historical_data[historical_data['Ticker'] == selected_ticker].sort_values("Date")
 
     # Create Tabs
-    tab1, tab2, tab3, tab4 = st.tabs(["📜 Historical Data", "📡 Predictions", "📊 Live Data", "📑 Financial Statements"])
+    tab1, tab2, tab3, tab4 = st.tabs(["📜 Historical Data", "📊 Live Data", "📡 Predictions", "📑 Financial Statements"])
 
     with tab1:  # Historical Data
         st.subheader(f"📜 Historical Data for {selected_ticker}")
@@ -262,12 +262,15 @@ if page == "Go Live":  # Correct indentation
         else:
             st.warning("No historical data available.")
 
-    with tab2:  # Live data
+    with tab2:  # Live Data
         st.subheader("📊 Live Stock Data")
 
         today = datetime.date.today()
         default_start = today - datetime.timedelta(days=60)
         date_range = st.date_input("📆 Select live data range", [default_start, today])
+
+        # Initialize live_data as None at the start
+        live_data = None
 
         # Validate date input
         if len(date_range) == 2:
@@ -278,35 +281,39 @@ if page == "Go Live":  # Correct indentation
 
         if st.button("🔄 Refresh Live Data"):
             with st.spinner("Fetching live market data..."):
-                live_data = api.get_share_prices(selected_ticker, start_date, end_date)
+                try:
+                    live_data = api.get_share_prices(selected_ticker, start_date, end_date)
+                    if live_data is not None and not live_data.empty:
+                        st.success(f"✅ Live data retrieved for {selected_ticker} ({start_date} to {end_date})")
+                        st.dataframe(live_data.tail(10))
 
-            if live_data is not None and not live_data.empty:
-                st.success(f"✅ Live data retrieved for {selected_ticker} ({start_date} to {end_date})")
-                st.dataframe(live_data.tail(10))
-
-                # Plot Live Price Trend
-                if "Date" in live_data.columns:
-                    live_data["Date"] = pd.to_datetime(live_data["Date"])
-                    st.line_chart(live_data.set_index("Date")["Last Closing Price"])
-            else:
-                st.error("❌ No live data available.")
-
-
+                        # Plot Live Price Trend
+                        if "Date" in live_data.columns:
+                            live_data["Date"] = pd.to_datetime(live_data["Date"])
+                            st.line_chart(live_data.set_index("Date")["Last Closing Price"])
+                    else:
+                        st.error("❌ No live data available for the selected date range.")
+                except Exception as e:
+                    st.error(f"❌ Error fetching live data: {str(e)}")
 
     with tab3:  # Model Predictions
         st.subheader("📡 Model Predictions")
 
         # Check if live data exists and is not empty
-        if 'live_data' in locals() and live_data is not None and not live_data.empty:
+        if live_data is not None and not live_data.empty:
             try:
                 # Get the most recent record from live data
                 latest_record = live_data.iloc[-1]
+
+                # Calculate EMA-20 from live data
+                live_data['ema_20'] = live_data['Last Closing Price'].ewm(span=20, adjust=False).mean()
+                latest_ema = live_data['ema_20'].iloc[-1]
 
                 # Create features from live data
                 feature_dict = {
                     'Close': latest_record['Last Closing Price'],
                     'Volume': latest_record['Volume'],
-                    'ema_20': latest_record['Last Closing Price'],  # Using closing price as proxy for EMA
+                    'ema_20': latest_ema,  # Using calculated EMA
                     'day_of_week': pd.to_datetime(latest_record['Date']).dayofweek
                 }
                 latest_features_df = pd.DataFrame([feature_dict])
