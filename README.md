@@ -82,7 +82,9 @@ streamlit run app.py
 
 ```
 Streamlit_app2/
-├── app.py                 # Main Streamlit application
+├── app.py            # Main Streamlit application
+├── Data_Analytics_Scripts/
+  ├──Classification_model.py
 ├── API_wrapper.py         # SimFin API integration
 ├── trading_strategy.py    # Trading strategy implementations
 ├── requirements.txt       # Project dependencies
