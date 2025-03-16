@@ -262,51 +262,7 @@ if page == "Go Live":  # Correct indentation
         else:
             st.warning("No historical data available.")
 
-    with tab2:  # Predictions
-        st.subheader("📡 Model Predictions")
-
-        if not ticker_data.empty:
-            try:
-                latest_record = ticker_data.iloc[-1]
-                feature_cols = ['Close', 'Volume', 'ema_20', 'day_of_week']
-                latest_features = latest_record[feature_cols]
-                latest_features_df = pd.DataFrame([latest_features])
-
-                # Classification Prediction (Rise or Fall)
-                if clf_model is not None:
-                    try:
-                        clf_prediction = clf_model.predict(latest_features_df)[0]
-                        prediction_text = "⬆ Rise" if clf_prediction == 1 else "⬇ Fall"
-                        # Convert numpy float32 to Python float
-                        confidence = float(clf_model.predict_proba(latest_features_df)[0][clf_prediction] * 100)  # Confidence score
-                        if prediction_text == "⬆ Rise":
-                            st.markdown(f"""*📌 Next-Day Price Prediction:* <span style='font-size:24px; color:green;'>{prediction_text}</span>""", unsafe_allow_html=True)
-                        else:
-                            st.markdown(f"""*📌 Next-Day Price Prediction:* <span style='font-size:24px; color:red;'>{prediction_text}</span>""", unsafe_allow_html=True)
-                        st.markdown(f"*📈 Confidence: {confidence:.2f}%*")
-                        st.progress(confidence / 100)  # Show confidence as a progress bar
-                    except Exception as e:
-                        st.error(f"Error making classification prediction: {str(e)}")
-                else:
-                    st.warning("Classification model could not be loaded.")
-
-                # Regression Prediction (Exact Price)
-                if reg_model is not None:
-                    try:
-                        # Convert numpy float32 to Python float
-                        reg_prediction = float(reg_model.predict(latest_features_df)[0])
-                        st.metric(label="📉 Predicted Next-Day Price", value=f"${reg_prediction:.2f}")
-                    except Exception as e:
-                        st.error(f"Error making regression prediction: {str(e)}")
-                else:
-                    st.warning("Regression model could not be loaded.")
-
-            except Exception as e:
-                st.error(f"Error preparing prediction data: {str(e)}")
-        else:
-            st.warning("No data available for predictions.")
-
-    with tab3:  # Live Data
+    with tab2:  # Live data
         st.subheader("📊 Live Stock Data")
 
         today = datetime.date.today()
@@ -334,6 +290,82 @@ if page == "Go Live":  # Correct indentation
                     st.line_chart(live_data.set_index("Date")["Last Closing Price"])
             else:
                 st.error("❌ No live data available.")
+
+
+
+    with tab3:  # Model Predictions
+        st.subheader("📡 Model Predictions")
+
+        # Check if live data exists and is not empty
+        if 'live_data' in locals() and live_data is not None and not live_data.empty:
+            try:
+                # Get the most recent record from live data
+                latest_record = live_data.iloc[-1]
+
+                # Create features from live data
+                feature_dict = {
+                    'Close': latest_record['Last Closing Price'],
+                    'Volume': latest_record['Volume'],
+                    'ema_20': latest_record['Last Closing Price'],  # Using closing price as proxy for EMA
+                    'day_of_week': pd.to_datetime(latest_record['Date']).dayofweek
+                }
+                latest_features_df = pd.DataFrame([feature_dict])
+
+                # Classification Prediction (Rise or Fall)
+                if clf_model is not None:
+                    try:
+                        clf_prediction = clf_model.predict(latest_features_df)[0]
+                        prediction_text = "⬆ Rise" if clf_prediction == 1 else "⬇ Fall"
+                        # Convert numpy float32 to Python float
+                        confidence = float(clf_model.predict_proba(latest_features_df)[0][clf_prediction] * 100)  # Confidence score
+
+                        # Display prediction with color
+                        st.markdown("### Next-Day Price Movement Prediction")
+                        if prediction_text == "⬆ Rise":
+                            st.markdown(f"""<span style='font-size:24px; color:green;'>{prediction_text}</span>""", unsafe_allow_html=True)
+                        else:
+                            st.markdown(f"""<span style='font-size:24px; color:red;'>{prediction_text}</span>""", unsafe_allow_html=True)
+
+                        # Display confidence
+                        st.markdown(f"*📈 Model Confidence: {confidence:.2f}%*")
+                        st.progress(confidence / 100)  # Show confidence as a progress bar
+                    except Exception as e:
+                        st.error(f"Error making classification prediction: {str(e)}")
+                else:
+                    st.warning("Classification model could not be loaded.")
+
+                # Regression Prediction (Exact Price)
+                if reg_model is not None:
+                    try:
+                        # Convert numpy float32 to Python float
+                        reg_prediction = float(reg_model.predict(latest_features_df)[0])
+                        current_price = latest_record['Last Closing Price']
+                        price_change = ((reg_prediction - current_price) / current_price) * 100
+
+                        # Display current and predicted prices
+                        st.markdown("### Price Predictions")
+                        col1, col2 = st.columns(2)
+                        with col1:
+                            st.metric(
+                                label="Current Price",
+                                value=f"${current_price:.2f}"
+                            )
+                        with col2:
+                            st.metric(
+                                label="Predicted Next-Day Price",
+                                value=f"${reg_prediction:.2f}",
+                                delta=f"{price_change:+.2f}%"
+                            )
+                    except Exception as e:
+                        st.error(f"Error making regression prediction: {str(e)}")
+                else:
+                    st.warning("Regression model could not be loaded.")
+
+            except Exception as e:
+                st.error(f"Error preparing prediction data: {str(e)}")
+        else:
+            st.warning("Please fetch live data first using the 'Refresh Live Data' button above to see predictions.")
+
 
     with tab4:  # Financial Statements
         st.subheader(f"📑 {selected_ticker}Financial Statements for 2024")
