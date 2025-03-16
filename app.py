@@ -249,7 +249,7 @@ if page == "Go Live":  # Correct indentation
     with tab1:  # Historical Data
         st.subheader(f"📜 Historical Data for {selected_ticker}")
         if not ticker_data.empty:
-            st.dataframe(ticker_data.tail(10))
+            st.dataframe(ticker_data.tail(5))
 
             # Plot Stock Price Trend
             fig, ax = plt.subplots(figsize=(8, 4))
@@ -283,9 +283,10 @@ if page == "Go Live":  # Correct indentation
             with st.spinner("Fetching live market data..."):
                 try:
                     live_data = api.get_share_prices(selected_ticker, start_date, end_date)
+                    live_data= live_data.drop(columns=['Dividend Paid'])
                     if live_data is not None and not live_data.empty:
                         st.success(f"✅ Live data retrieved for {selected_ticker} ({start_date} to {end_date})")
-                        st.dataframe(live_data.tail(10))
+                        st.dataframe(live_data.tail(5))
 
                         # Plot Live Price Trend
                         if "Date" in live_data.columns:
@@ -312,7 +313,7 @@ if page == "Go Live":  # Correct indentation
                 # Create features from live data
                 feature_dict = {
                     'Close': latest_record['Last Closing Price'],
-                    'Volume': latest_record['Volume'],
+                    'Volume': latest_record['Trading Volume'],
                     'ema_20': latest_ema,  # Using calculated EMA
                     'day_of_week': pd.to_datetime(latest_record['Date']).dayofweek
                 }
