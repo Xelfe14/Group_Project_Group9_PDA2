@@ -1,7 +1,7 @@
 # Automated Daily Trading System 🚀
 
 ## Project Overview
-This project implements an automated daily trading system that combines machine learning predictions with real-time market data to provide trading insights. The system analyzes historical data from five major US companies (AAPL, MSFT, GOOGL, AMZN, FB) and provides daily trading recommendations through an interactive web interface.
+This project implements **a daily trading system** that combines **machine learning predictions** with real-time market data to provide trading insights. The system analyzes **historical data from five major US companies** (AAPL, MSFT, GOOGL, AMZN, FB) and provides daily trading recommendations through an **interactive web interface built on streamlit**.
 
 ## Team Members
 - Team 9
