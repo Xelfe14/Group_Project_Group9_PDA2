@@ -155,7 +155,7 @@ if page == "Home":
 
     with tabs[1]:
         st.header("🏢 Meet the Companies")
-        st.image('./Companies2.png', caption=' ', width=700)
+        st.image('./Companies3.png', caption=' ', width=700)
 
 
 
