@@ -164,32 +164,8 @@ if page == "Overview":  # Correct indentation
     st.title("🔍 Overview")
     tab1, tab2, tab3 = st.tabs(["📊 Data Analytics Module", "🌐 Web Application", "🏗️ Technical Architecture"])
 
-    # Pestaña 1: Data Analytics Module
-    with tab1:
-        st.subheader("📊 Data Analytics Module")
-        st.markdown("""
-        - **ETL Pipeline**: Processes historical financial data from **SimFin**
-        - **ML Models**:
-          - Classification model to predict **price movement (rise/fall)**
-          - Regression model to predict **next-day price**
-        - **Trading Strategies**:
-          - **Buy and Hold**: Purchases shares when **rise predicted**, holds until **profit target**
-          - **Buy and Sell**: Dynamic trading based on **daily predictions**
-        """)
-
-    # Pestaña 2: Web Application
-    with tab2:
-        st.subheader("🌐 Web Application")
-        st.markdown("""
-        - **Multi-page Streamlit interface**:
-          - 📌 Home page with **project overview**
-          - 📖 Overview page explaining **methodology**
-          - 📈 Live trading **dashboard**
-          - 🔄 Trading strategy **backtesting**
-        """)
-
     # Pestaña 3: Technical Architecture
-    with tab3:
+    with tab1:
         st.subheader("🏗️ Technical Architecture")
 
         st.markdown("### 1️⃣ Data Processing")
@@ -211,6 +187,30 @@ if page == "Overview":  # Correct indentation
         - **Streamlit** for frontend
         - **Interactive visualizations**
         - **Real-time data updates**
+        """)
+    
+    # Pestaña 2: Data Analytics Module
+    with tab2:
+        st.subheader("📊 Data Analytics Module")
+        st.markdown("""
+        - **ETL Pipeline**: Processes historical financial data from **SimFin**
+        - **ML Models**:
+          - Classification model to predict **price movement (rise/fall)**
+          - Regression model to predict **next-day price**
+        - **Trading Strategies**:
+          - **Buy and Hold**: Purchases shares when **rise predicted**, holds until **profit target**
+          - **Buy and Sell**: Dynamic trading based on **daily predictions**
+        """)
+
+    # Pestaña 3: Web Application
+    with tab3:
+        st.subheader("🌐 Web Application")
+        st.markdown("""
+        - **Multi-page Streamlit interface**:
+          - 📌 Home page with **project overview**
+          - 📖 Overview page explaining **methodology**
+          - 📈 Live trading **dashboard**
+          - 🔄 Trading strategy **backtesting**
         """)
 
     # Final message
